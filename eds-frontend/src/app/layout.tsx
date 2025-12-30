@@ -12,6 +12,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+//seo
 export const metadata: Metadata = {
   title: "External Data Dashboard - Weather & Currency Rates",
   description:

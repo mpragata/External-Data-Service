@@ -1,4 +1,3 @@
-// modules/weather/weatherService.ts
 import httpClient from "../../lib/httpClient";
 import { WeatherData } from "./types";
 
