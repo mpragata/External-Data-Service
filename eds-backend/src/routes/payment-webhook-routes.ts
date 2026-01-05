@@ -1,8 +1,7 @@
-// routes/paymentWebhook-routes.ts
 import { Router } from "express";
 import Stripe from "stripe";
 import { stripe } from "../lib/stripeClient";
-import { Db } from "mongodb";
+import { connectDB } from "../config/db";
 import express from "express";
 
 const router = Router();
@@ -25,27 +24,20 @@ router.post(
     try {
       event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
     } catch (err: any) {
-      //console.log("Webhook signature verification failed:", err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
-    const db: Db = (global as any).db;
+
+    // ✅ Connect to MongoDB on every request (cached in lib/db)
+    const db = await connectDB();
     const payments = db.collection("payments");
-    //console.log("Webhook hit!", req.headers["stripe-signature"]);
-    // Check if event already processed
+
+    // Prevent double-processing
     const existing = await payments.findOne({ rawEventId: event.id });
     if (existing) {
       return res.status(200).send("Event already processed");
     }
 
-    // Handle events
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
-
-    // console.log(
-    //   "Received Stripe event:",
-    //   event.type,
-    //   "for paymentIntentId:",
-    //   paymentIntent.id
-    // );
 
     if (
       [
