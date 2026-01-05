@@ -32,7 +32,6 @@ export async function connectDB(): Promise<Db> {
   return cachedDb;
 }
 
-// Optional cleanup function (rarely used in serverless)
 export async function closeDB(): Promise<void> {
   if (cachedClient) {
     await cachedClient.close();

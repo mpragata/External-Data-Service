@@ -27,11 +27,10 @@ router.post(
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
-    // ✅ Connect to MongoDB on every request (cached in lib/db)
     const db = await connectDB();
+    console.log("MongoDB instance in webhook:", !!db);
     const payments = db.collection("payments");
 
-    // Prevent double-processing
     const existing = await payments.findOne({ rawEventId: event.id });
     if (existing) {
       return res.status(200).send("Event already processed");

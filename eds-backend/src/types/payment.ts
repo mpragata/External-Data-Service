@@ -5,7 +5,7 @@ export interface Payment {
   amount: number;
   currency: string;
   status: "created" | "succeeded" | "failed" | "refunded";
-  //userId?: string; // optional if you have users
+  //userId?: string; // optional
   provider: "stripe";
   livemode: boolean;
   createdAt: Date;
