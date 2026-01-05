@@ -1,12 +1,13 @@
-import * as dotenv from "dotenv";
-dotenv.config();
-import "./config/config";
+import { loadEnv } from "./config/config"; // ← explicit
+loadEnv();
 import express from "express";
 import cors from "cors";
 import { connectDB } from "./config/db";
 import { Db } from "mongodb";
 import weatherRoutes from "./routes/weather-routes";
 import currencyRoutes from "./routes/currency-routes";
+import paymentRoutes from "./routes/payment-routes";
+import paymentWebhookRoutes from "./routes/payment-webhook-routes";
 
 const port = process.env.PORT || process.env.BACKEND_PORT || 3000;
 
@@ -22,9 +23,15 @@ app.use(
     credentials: false,
   })
 );
+app.use(
+  "/api/payments/webhook",
+  express.raw({ type: "application/json" }),
+  paymentWebhookRoutes
+);
 app.use(express.json());
 app.use("/api/weather", weatherRoutes);
 app.use("/api/currency", currencyRoutes);
+app.use("/api/payments", paymentRoutes);
 
 // Database variable
 let db: Db;
@@ -39,7 +46,7 @@ async function startServer() {
   try {
     // Connect to MongoDB
     db = await connectDB();
-    (global as any).db = db; // make globally accessible
+    (global as any).db = db;
 
     app.listen(port, () => {
       console.log(`🎉 Server listening on port ${port}`);
@@ -54,3 +61,5 @@ async function startServer() {
 }
 // Invoke the start server function
 startServer();
+
+export default app;
